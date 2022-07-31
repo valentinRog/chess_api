@@ -2,12 +2,12 @@ import pymongo
 import csv
 import chess
 
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient("mongodb://db:27017")
 db = client["puzzles"]
 collection = db["puzzles"]
 
 csvfile = open('puzzles.csv', 'r')
-reader = csv.reader( csvfile )
+reader = csv.reader(csvfile)
 
 with open('puzzles.csv', 'r') as f:
     reader = csv.DictReader(f)

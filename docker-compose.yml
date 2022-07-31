@@ -1,5 +1,4 @@
-version: '3'
-
+version: "3"
 services:
   db:
     image: mongo
@@ -8,6 +7,8 @@ services:
       - "27017:27017"
     volumes:
       - /data/db
+    networks:
+      - net
   app:
     depends_on:
       - db
@@ -15,3 +16,7 @@ services:
     ports:
       - "5000:5000"
     restart: always
+    networks:
+      - net
+networks:
+  net:
