@@ -6,8 +6,7 @@ client = pymongo.MongoClient("mongodb://db:27017")
 db = client["puzzles"]
 collection = db["puzzles"]
 
-csvfile = open('puzzles.csv', 'r')
-reader = csv.reader(csvfile)
+buffer = []
 
 with open('puzzles.csv', 'r') as f:
     reader = csv.DictReader(f)
@@ -17,4 +16,8 @@ with open('puzzles.csv', 'r') as f:
         row["Popularity"] = int(row["Popularity"])
         row["NbPlays"] = int(row["NbPlays"])
         row["NbPieces"] = len(chess.Board(row["FEN"]).piece_map())
-        collection.insert_one(row)
+        buffer.append(row)
+        if not reader.line_num % 10000:
+            collection.insert_many(buffer)
+            buffer = []
+    collection.insert_many(buffer)
