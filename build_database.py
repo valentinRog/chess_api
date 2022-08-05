@@ -3,6 +3,7 @@ import csv
 import chess
 
 client = pymongo.MongoClient("mongodb://db:27017")
+client.drop_database("puzzles")
 db = client["puzzles"]
 collection = db["puzzles"]
 
