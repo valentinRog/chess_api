@@ -1,4 +1,0 @@
-flask
-chess
-pymongo
-gunicorn

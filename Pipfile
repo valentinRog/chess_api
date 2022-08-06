@@ -8,6 +8,8 @@ chess = "*"
 flask = "*"
 pymongo = "*"
 gunicorn = "*"
+flask-sqlalchemy = "*"
+mysql = "*"
 
 [dev-packages]
 autopep8 = "*"
