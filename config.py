@@ -1,7 +1,7 @@
 SQLALCHEMY_DATABASE_URI = "mysql://{user}:{password}@{address}:{port}/{database}".format(
 	user = "root",
 	password = "root",
-	address = "127.0.0.1",
+	address = "localhost",
 	port = "3306",
 	database = "puzzles"
 )
