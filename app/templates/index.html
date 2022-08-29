@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script type="text/javascript">
+      const puzzle = {{ puzzle|tojson }};
+    </script>
+  </head>
+
+  <body>
+    <h1>Yo</h1>
+    <h1>{{ puzzle.total }}</h1>
+    <ul>
+      {% for move in puzzle.moves %}
+      <li>{{ move }}</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
