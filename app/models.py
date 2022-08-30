@@ -49,6 +49,6 @@ class Puzzle(db.Model):
                     moves=row["Moves"],
                     nb_pieces=len(chess.Board(row["FEN"]).piece_map()))
                 db.session.add(puzzle)
-                if not (reader.line_num + 1) % cls.BUFFER_SIZE:
+                if not (reader.line_num - 1) % cls.BUFFER_SIZE:
                     db.session.commit()
         db.session.commit()
