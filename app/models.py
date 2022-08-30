@@ -30,7 +30,7 @@ class Puzzle(db.Model):
         }.items():
             yield (key, value)
 
-    BUFFER_SIZE = 1000
+    BUFFER_SIZE = 10_000
 
     @classmethod
     def build(cls):
@@ -49,6 +49,6 @@ class Puzzle(db.Model):
                     moves=row["Moves"],
                     nb_pieces=len(chess.Board(row["FEN"]).piece_map()))
                 db.session.add(puzzle)
-                if not reader.line_num % cls.BUFFER_SIZE:
+                if not (reader.line_num + 1) % cls.BUFFER_SIZE:
                     db.session.commit()
         db.session.commit()
