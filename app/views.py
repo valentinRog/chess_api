@@ -3,7 +3,6 @@ from .app import app
 
 from . import puzzle
 
-
 @app.route('/')
 def index():
     return render_template(

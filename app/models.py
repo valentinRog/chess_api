@@ -27,17 +27,20 @@ class Puzzle(db.Model):
             "moves": self.moves.split(),
             "nb_pieces": self.nb_pieces,
             "pieces": chess.Board(self.fen).piece_map()
-            }.items():
+        }.items():
             yield (key, value)
 
-    def build():
-        Puzzle.__table__.drop(db.engine)
+    BUFFER_SIZE = 1000
+
+    @classmethod
+    def build(cls):
+        cls.__table__.drop(db.engine)
         db.create_all()
         db.session.commit()
         with open(app.config["PUZZLES_CSV_FILE"], 'r') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                puzzle = Puzzle(
+                puzzle = cls(
                     id=reader.line_num,
                     division=int(sha256(row["FEN"].encode(
                         "utf-8")).hexdigest(), 16) % 100,
@@ -46,4 +49,6 @@ class Puzzle(db.Model):
                     moves=row["Moves"],
                     nb_pieces=len(chess.Board(row["FEN"]).piece_map()))
                 db.session.add(puzzle)
-                db.session.commit()
+                if not reader.line_num % cls.BUFFER_SIZE:
+                    db.session.commit()
+        db.session.commit()
