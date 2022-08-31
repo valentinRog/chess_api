@@ -1,4 +1,5 @@
 __pycache__
-**.csv
+*.pyc
+*.csv
 .vscode
 node_modules
