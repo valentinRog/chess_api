@@ -5,18 +5,16 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
     />
+    <script
+      src="{{ url_for('static', filename='js/index.js') }}"
+      defer
+    ></script>
     <script type="text/javascript">
       const puzzle = {{ puzzle|tojson }};
     </script>
   </head>
-
   <body>
-    <h1>Yo</h1>
-    <h1>{{ puzzle.total }}</h1>
-    <ul>
-      {% for move in puzzle.moves %}
-      <li>{{ move }}</li>
-      {% endfor %}
-    </ul>
+    <div id="guessing_container"></div>
+    <div id="answer_container" hidden></div>
   </body>
 </html>

@@ -13,5 +13,5 @@ def get_puzzle(elo_min, elo_max, n_pieces_min, n_pieces_max):
         Puzzle.nb_pieces <= n_pieces_max
     )).order_by(func.random()).first()
     res = dict(puzzle)
-    res["total"] = Puzzle.query.count()
+    res["total"] = 0
     return res if puzzle else {}
