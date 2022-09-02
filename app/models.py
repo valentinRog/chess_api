@@ -9,10 +9,12 @@ from .views import app
 
 db = SQLAlchemy(app)
 
+
 def init_tables():
     db.drop_all()
     db.create_all()
     db.session.commit()
+
 
 class Puzzle(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -37,7 +39,10 @@ class Puzzle(db.Model):
     def get_san_moves(self):
         return [board.san(board.parse_uci(move)) for board, move in zip(self.get_boards(), self.moves.split())]
 
-    def get_legal_moves(self):
+    def get_legal_uci_moves(self):
+        return [[board.uci(move) for move in board.legal_moves] for board in self.get_boards()]
+
+    def get_legal_san_moves(self):
         return [[board.san(move) for move in board.legal_moves] for board in self.get_boards()]
 
     def get_pieces(self):
@@ -48,22 +53,24 @@ class Puzzle(db.Model):
             "id": self.id,
             "elo": self.elo,
             "fen": self.fen,
-            "fen": self.get_fens(),
+            "fens": self.get_fens(),
             "uci_moves": self.moves.split(),
             "san_moves": self.get_san_moves(),
-            "legal_moves": self.get_legal_moves(),
+            "legal_uci_moves": self.get_legal_uci_moves(),
+            "legal_san_moves": self.get_legal_san_moves(),
             "nb_pieces": self.nb_pieces,
             "pieces": self.get_pieces()
         }.items():
             yield (key, value)
 
     N_CHUNKS = 100
+
     @classmethod
     def fill_from_csv(cls, stream, buffer_size=10_000):
         reader = csv.DictReader(stream)
         for row in reader:
             puzzle = cls(
-                id = reader.line_num,
+                id=reader.line_num,
                 division=int(sha256(row["FEN"].encode(
                     "utf-8")).hexdigest(), 16) % cls.N_CHUNKS,
                 elo=int(row["Rating"]),
