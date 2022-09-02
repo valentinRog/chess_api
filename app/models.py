@@ -38,10 +38,7 @@ class Puzzle(db.Model):
         return [board.san(board.parse_uci(move)) for board, move in zip(self.get_boards(), self.moves.split())]
 
     def get_legal_moves(self):
-        legal_moves = []
-        for board in self.get_boards():
-            legal_moves.append([board.san(move) for move in board.legal_moves])
-        return legal_moves
+        return [[board.san(move) for move in board.legal_moves] for board in self.get_boards()]
 
     def get_pieces(self):
         return {k: v.symbol() for k, v in chess.Board(self.fen).piece_map().items()}
