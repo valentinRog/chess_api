@@ -1,5 +1,10 @@
 {
+  "scripts": {
+    "build": "tsc -p .",
+    "start": "npm run build -- -w"
+  },
   "dependencies": {
-    "cm-chessboard": "^5.2.3"
+    "cm-chessboard": "^5.2.3",
+    "typescript": "^4.8.2"
   }
 }
