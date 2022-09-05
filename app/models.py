@@ -1,6 +1,8 @@
 import csv
 import chess
 import random
+import pandas
+import io
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_, func
@@ -19,8 +21,8 @@ def init_tables():
 
 class Puzzle(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    elo = db.Column(db.Integer(), index=True, unique=False, nullable=False)
     fen = db.Column(db.String(200), unique=False, nullable=False)
+    elo = db.Column(db.Integer(), index=True, unique=False, nullable=False)
     moves = db.Column(db.String(500), unique=False, nullable=False)
     n_pieces = db.Column(
         db.Integer(),
@@ -67,21 +69,26 @@ class Puzzle(db.Model):
             yield (key, value)
 
     @classmethod
-    def fill_from_csv(cls, stream, buffer_size=10_000):
-        reader = csv.DictReader(stream)
+    def fill_from_csv(cls, infile, buffer_size=10_000):
+        df = pandas.read_csv(infile, usecols=["FEN", "Rating", "Moves"])
+        df = df.sample(frac=1)
+        stream = io.StringIO()
+        df.to_csv(stream, sep=",", index=False)
+        reader = csv.DictReader(io.StringIO(stream.getvalue()))
+        added = 0
         for row in reader:
             puzzle = cls(
-                id=reader.line_num,
-                elo=int(row["Rating"]),
                 fen=row["FEN"],
+                elo=int(row["Rating"]),
                 moves=row["Moves"],
                 n_pieces=len(chess.Board(row["FEN"]).piece_map()))
             db.session.add(puzzle)
-            if not (reader.line_num - 1) % buffer_size:
+            added += 1
+            if not added % buffer_size:
                 db.session.commit()
-                print(reader.line_num - 1, "puzzles added", end="\r")
+                print(added, "puzzles added", end="\r")
         db.session.commit()
-        print(reader.line_num - 1, "puzzles added")
+        print(added, "puzzles added")
 
     @classmethod
     def get_random(cls, elo_min=0, elo_max=4000, n_pieces_min=0, n_pieces_max=32):
