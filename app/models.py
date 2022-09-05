@@ -1,8 +1,9 @@
 import csv
 import chess
-from hashlib import sha256
+import random
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_, func
 
 from .views import app
 
@@ -18,12 +19,15 @@ def init_tables():
 
 class Puzzle(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    division = db.Column(db.Integer(), index=True,
-                         unique=False, nullable=False)
-    elo = db.Column(db.Integer(), unique=False, nullable=False)
+    elo = db.Column(db.Integer(), index=True, unique=False, nullable=False)
     fen = db.Column(db.String(200), unique=False, nullable=False)
     moves = db.Column(db.String(500), unique=False, nullable=False)
-    nb_pieces = db.Column(db.Integer(), unique=False, nullable=False)
+    n_pieces = db.Column(
+        db.Integer(),
+        index=True,
+        unique=False,
+        nullable=False
+    )
 
     def get_fens(self):
         board = chess.Board(self.fen)
@@ -50,7 +54,6 @@ class Puzzle(db.Model):
 
     def __iter__(self):
         for key, value in {
-            "id": self.id,
             "elo": self.elo,
             "fen": self.fen,
             "fens": self.get_fens(),
@@ -58,12 +61,10 @@ class Puzzle(db.Model):
             "san_moves": self.get_san_moves(),
             "legal_uci_moves": self.get_legal_uci_moves(),
             "legal_san_moves": self.get_legal_san_moves(),
-            "nb_pieces": self.nb_pieces,
+            "n_pieces": self.n_pieces,
             "pieces": self.get_pieces()
         }.items():
             yield (key, value)
-
-    N_CHUNKS = 100
 
     @classmethod
     def fill_from_csv(cls, stream, buffer_size=10_000):
@@ -71,15 +72,38 @@ class Puzzle(db.Model):
         for row in reader:
             puzzle = cls(
                 id=reader.line_num,
-                division=int(sha256(row["FEN"].encode(
-                    "utf-8")).hexdigest(), 16) % cls.N_CHUNKS,
                 elo=int(row["Rating"]),
                 fen=row["FEN"],
                 moves=row["Moves"],
-                nb_pieces=len(chess.Board(row["FEN"]).piece_map()))
+                n_pieces=len(chess.Board(row["FEN"]).piece_map()))
             db.session.add(puzzle)
             if not (reader.line_num - 1) % buffer_size:
                 db.session.commit()
                 print(reader.line_num - 1, "puzzles added", end="\r")
         db.session.commit()
         print(reader.line_num - 1, "puzzles added")
+
+    @classmethod
+    def get_random(cls, elo_min=0, elo_max=4000, n_pieces_min=0, n_pieces_max=32):
+        id_range = (
+            cls.query.order_by(cls.id.asc()).first().id,
+            cls.query.order_by(cls.id.desc()).first().id
+        )
+        target_id = random.randint(*id_range)
+        if target_id < sum(id_range) / 2:
+            puzzle = cls.query.filter(and_(
+                cls.id >= target_id,
+                cls.elo >= elo_min,
+                cls.elo <= elo_max,
+                cls.n_pieces >= n_pieces_min,
+                cls.n_pieces <= n_pieces_max
+            )).order_by(cls.id.asc()).first()
+        else:
+            puzzle = cls.query.filter(and_(
+                cls.id <= target_id,
+                cls.elo >= elo_min,
+                cls.elo <= elo_max,
+                cls.n_pieces >= n_pieces_min,
+                cls.n_pieces <= n_pieces_max
+            )).order_by(cls.id.desc()).first()
+        return dict(puzzle) if puzzle else {}
