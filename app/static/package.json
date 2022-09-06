@@ -4,7 +4,6 @@
     "start": "npm run build -- -w"
   },
   "dependencies": {
-    "cm-chessboard": "^5.2.3",
-    "typescript": "^4.8.2"
+    "cm-chessboard": "^5.2.3"
   }
 }

@@ -52,7 +52,10 @@ class Puzzle(db.Model):
         return [[board.san(move) for move in board.legal_moves] for board in self.get_boards()]
 
     def get_pieces(self):
-        return {k: v.symbol() for k, v in chess.Board(self.fen).piece_map().items()}
+        pieces = {v.symbol(): [] for v in chess.Board(self.fen).piece_map().values()}
+        for square, piece in chess.Board(self.fen).piece_map().items():
+            pieces[piece.symbol()].append(chess.square_name(square))
+        return pieces
 
     def __iter__(self):
         for key, value in {

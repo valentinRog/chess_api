@@ -14,7 +14,24 @@
     </script>
   </head>
   <body>
-    <div id="guessing_container"></div>
+    <div id="guessing_container">
+      <div id="pieces-container">
+          {% for color, value in pieces.items() %}
+            <div class="{{ color }}">
+              {% for piece, squares in value.items() %}
+                <div class="{{piece}}">
+                  <ul>
+                    {% for square in squares %}
+                      <li>{{ square}}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
     <div id="answer_container" hidden></div>
   </body>
 </html>
