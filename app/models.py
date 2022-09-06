@@ -5,7 +5,7 @@ import pandas
 import io
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import and_, func
+from sqlalchemy import and_
 
 from .views import app
 
@@ -70,32 +70,29 @@ class Puzzle(db.Model):
 
     @classmethod
     def fill_from_csv(cls, infile, buffer_size=10_000):
+        Puzzle.query.delete()
         df = pandas.read_csv(infile, usecols=["FEN", "Rating", "Moves"])
         df = df.sample(frac=1)
         stream = io.StringIO()
         df.to_csv(stream, sep=",", index=False)
         reader = csv.DictReader(io.StringIO(stream.getvalue()))
-        added = 0
         for row in reader:
             puzzle = cls(
+                id=reader.line_num,
                 fen=row["FEN"],
                 elo=int(row["Rating"]),
                 moves=row["Moves"],
                 n_pieces=len(chess.Board(row["FEN"]).piece_map()))
             db.session.add(puzzle)
-            added += 1
-            if not added % buffer_size:
+            if not reader.line_num % buffer_size:
                 db.session.commit()
-                print(added, "puzzles added", end="\r")
+                print(reader.line_num, "puzzles added", end="\r")
         db.session.commit()
-        print(added, "puzzles added")
+        print(reader.line_num, "puzzles added")
 
     @classmethod
     def get_random(cls, elo_min=0, elo_max=4000, n_pieces_min=0, n_pieces_max=32):
-        id_range = (
-            cls.query.order_by(cls.id.asc()).first().id,
-            cls.query.order_by(cls.id.desc()).first().id
-        )
+        id_range = (1, cls.query.order_by(cls.id.desc()).first().id)
         target_id = random.randint(*id_range)
         if target_id < sum(id_range) / 2:
             puzzle = cls.query.filter(and_(
@@ -113,4 +110,4 @@ class Puzzle(db.Model):
                 cls.n_pieces >= n_pieces_min,
                 cls.n_pieces <= n_pieces_max
             )).order_by(cls.id.desc()).first()
-        return dict(puzzle) if puzzle else {}
+        return dict(puzzle)
