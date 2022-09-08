@@ -5,33 +5,38 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
     />
-    <script
-      src="{{ url_for('static', filename='js/index.js') }}"
-      defer
-    ></script>
-    <script type="text/javascript">
-      const puzzle = {{ puzzle|tojson }};
+    <script>
+      const url_for_assets = "{{ url_for('static', filename='assets') }}";
     </script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   </head>
   <body>
-    <div id="guessing_container">
-      <div id="pieces-container">
-          {% for color, value in pieces.items() %}
-            <div class="{{ color }}">
-              {% for piece, squares in value.items() %}
-                <div class="{{piece}}">
-                  <ul>
-                    {% for square in squares %}
-                      <li>{{ square}}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              {% endfor %}
+    <div id="#app" x-data="">
+    <div id="guessing">
+      <div id="pieces">
+        {% for color, value in pieces.items() %}
+        <div class="{{ color }}">
+          {% for piece, squares in value.items() %}
+          <div class="{{ piece }}">
+            <div>
+              <img type="svg" x-bind:src="get_piece_url('{{ piece }}')"></img>
             </div>
+            <ul>
+              {% for square in squares %}
+              <li>{{ square }}</li>
+              {% endfor %}
+            </ul>
+          </div>
           {% endfor %}
         </div>
+        {% endfor %}
       </div>
     </div>
-    <div id="answer_container" hidden></div>
+    <div id="answer">
+      <div id="#board">
+      </div>
+    </div>
+  </div>
   </body>
 </html>

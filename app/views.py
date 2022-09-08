@@ -13,6 +13,9 @@ def index(level):
         "white": {k: v for k, v in puzzle["pieces"].items() if k in ascii_uppercase},
         "black": {k: v for k, v in puzzle["pieces"].items() if k in ascii_lowercase}
     }
+    pieces_svg = {
+        "B": ""
+    }
     return render_template(
         "index.html",
         puzzle=puzzle,
