@@ -1,23 +1,10 @@
-from flask import render_template
-from string import ascii_lowercase, ascii_uppercase
+from flask import jsonify
 
 from .app import app
 from .models import Puzzle
 
-
-@app.route("/", defaults={"level": 0})
-@app.route("/<int:level>")
-def index(level):
-    puzzle = Puzzle.get_random()
-    pieces = {
-        "white": {k: v for k, v in puzzle["pieces"].items() if k in ascii_uppercase},
-        "black": {k: v for k, v in puzzle["pieces"].items() if k in ascii_lowercase}
-    }
-    pieces_svg = {
-        "B": ""
-    }
-    return render_template(
-        "index.html",
-        puzzle=puzzle,
-        pieces=pieces
-    )
+@app.route("/")
+def puzzle():
+    response = jsonify(Puzzle.get_random())
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
