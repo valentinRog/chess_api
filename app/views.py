@@ -24,4 +24,5 @@ def level(level=1):
         elo_max=elo_max,
         n_pieces_max=n_pieces_max
     ))
+    response.headers.add("Access-Control-Allow-Origin", "*")
     return response
