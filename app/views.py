@@ -14,7 +14,7 @@ def index():
 @app.route("/level/<int:level>")
 def level(level=1):
     min_limit = 2500
-    elo_max = int(600 + 100 * (level / 3))
+    elo_max = int(700 + 100 * (level / 3))
     elo_min = elo_max - 100
     if elo_min > min_limit:
         elo_min = min_limit
