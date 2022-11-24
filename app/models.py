@@ -87,7 +87,6 @@ class Puzzle(db.Model):
             db.session.add(puzzle)
             if not reader.line_num % buffer_size:
                 db.session.commit()
-                print(reader.line_num, "puzzles added", end="\r")
         db.session.commit()
         print(reader.line_num, "puzzles added")
 
