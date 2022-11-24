@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    depends_on:
+      - mysql
+    networks:
+      - net
+    restart: always
+    ports:
+      - 80:80
+  
+  populate:
+    build:
+      context: .
+      dockerfile: docker/db/Dockerfile
+    depends_on:
+      - mysql
+    networks:
+      - net
+  
+  mysql:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: puzzles
+    networks:
+      - net
+    restart: always
+
+networks:
+  net:

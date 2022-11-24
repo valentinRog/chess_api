@@ -3,3 +3,4 @@ flask-sqlalchemy
 mysql
 chess
 pandas
+gunicorn

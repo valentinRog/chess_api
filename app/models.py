@@ -9,9 +9,7 @@ from sqlalchemy import and_
 
 from .views import app
 
-
 db = SQLAlchemy(app)
-
 
 def init_tables():
     db.drop_all()

@@ -3,3 +3,4 @@ __pycache__
 *.csv
 .vscode
 node_modules
+venv
